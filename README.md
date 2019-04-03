@@ -1,9 +1,9 @@
 # Draw-share-app
-Sharing draw line app with ruby websocket server.
+Sharing draw-line-app with ruby websocket server.
 # Setup
 Ruby version is 2.6.1.
 
-Clone this and move.
+Clone this.
 ```
 git clone git@github.com:ItinoseSan/draw-share-app.git
 cd draw-share-app
@@ -12,7 +12,7 @@ Install bundler.
 ```
 gem install bundler
 ```
-Install dependencies with select path in bundler.
+Install dependencies to specified path in bundler.
 ```
 bundle install --path vendor/bundle
 ```
