@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Draw-share</title>
+<script>
+    var ws = new WebSocket("ws://localhost:8888");
+    ws.onopen = function(){
+        // 接続時の処理
+    };
+    var isMouseDown = false;
+    var canvas;
+    var context;
+    window.onload = function() {
+        // htmlからキャンバスを取得する
+        canvas = document.getElementById("share_canvas");
+        context = canvas.getContext('2d');
+        canvas.addEventListener("mousemove", function(event){
+            mouseX = event.pageX;
+            mouseY = event.pageY;
+            if(isMouseDown){
+                draw(mouseX, mouseY);
+                // 描画位置をWebSocket鯖に送信する。
+                ws.send(mouseX + "," + mouseY);
+            }
+        });
+        canvas.addEventListener("mousedown", function(){
+            isMouseDown = true;
+        });
+        canvas.addEventListener("mouseup", function(){
+            isMouseDown = false;
+        });
+    }
+ 
+    // 描画処理
+    function draw(x, y){
+        context.beginPath();
+        context.fillStyle = change_linecolor();
+        // 描画がマウスイベントの開始位置で始まり、マウスイベントの終了位置で終わる
+        context.arc(x, y, change_linewidth(), 0, Math.PI*2, false);
+        // 描画位置の塗りつぶし
+        context.fill();
+    }
+
+    // 描画線の太さを調整する処理
+    function change_linewidth(){
+        var html_cxt = document.form1.linewidth;
+        var num = html_cxt.selectedIndex;
+        //　太さの値の格納部分
+        var width = html_cxt.options[num].value;
+        return width;
+    }
+
+    // 色の変更。太さと同じ要領で処理する。 
+    function change_linecolor(){
+        var html_cxt = document.form2.color;
+        var num = html_cxt.selectedIndex;
+        var color_name = html_cxt.options[num].value;
+        return color_name;
+    }
+
+    ws.onmessage = function(message){
+        // 受信時の処理
+        var value = message.data.split(",");
+        draw(value[0], value[1]);
+    };
+ 
+    // 接続解除
+    function closeConnect(){
+        ws.close();
+    }
+</script>
+</head>
+<body>
+    <div>
+        <canvas id="share_canvas" width="500" height="400" style="background-color: white;">
+        </canvas>
+    </div>
+    <div class="line-width">
+        <form name = "form1">
+            <p>LineWidth</p>        
+            <select name="linewidth">
+                <option value="5">Very small</option>
+                <option value="10">Small</option>
+                <option value="20">Medium</option>
+                <option value="30">Big</option>
+                <input type="button" value="change" onclick="change_linewidth()"/>                
+            </select>
+        </form>
+        <form name = "form2">
+            <p>LineColor</p>        
+            <select name="color">
+                <option value="blue">Blue</option>
+                <option value="red">Red</option>
+                <option value="yellow">Yellow</option>
+                <option value="green">Green</option>
+                <option value="black">Black</option>                    
+                <input type="button" value="change" onclick="change_linecolor()"/>                
+            </select>
+        </form>
+    </div>
+</body>
+</html>
